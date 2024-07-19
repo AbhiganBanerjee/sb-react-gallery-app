@@ -16,8 +16,110 @@ function App() {
 
   const [categories,setCategories] = useState([""]);
 
-  useEffect(()=>{
+  const loadConfetti = () => {
+    const end = Date.now() + 3 * 1000; // 3 seconds
+    const colors = ["#a786ff", "#fd8bbc", "#eca184", "#f8deb1"];
+ 
+    const frame = () => {
+      if (Date.now() > end) return;
+ 
+      confetti({
+        particleCount: 2,
+        angle: 60,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 0, y: 0.5 },
+        colors: colors,
+      });
+      confetti({
+        particleCount: 2,
+        angle: 120,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 1, y: 0.5 },
+        colors: colors,
+      });
+ 
+      requestAnimationFrame(frame);
+    };
+ 
+    frame();
+  };
+
+  const triggerFireWorks = () => {
+    const duration = 5 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+ 
+    const randomInRange = (min, max) =>
+      Math.random() * (max - min) + min;
+ 
+    const interval = window.setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+ 
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+ 
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+      });
+    }, 250);
+  };
+
+  const triggerEmojis = () => {
+    const scalar = 2;
+    const unicorn = confetti.shapeFromText({ text: "💗💙", scalar });
+ 
+    const defaults = {
+      spread: 360,
+      ticks: 60,
+      gravity: 0,
+      decay: 0.96,
+      startVelocity: 20,
+      shapes: [unicorn],
+      scalar,
+    };
+ 
+    const shoot = () => {
+      confetti({
+        ...defaults,
+        particleCount: 30,
+      });
+ 
+      confetti({
+        ...defaults,
+        particleCount: 5,
+      });
+ 
+      confetti({
+        ...defaults,
+        particleCount: 15,
+        scalar: scalar / 2,
+        shapes: ["circle"],
+      });
+    };
+ 
+    setTimeout(shoot, 0);
+    setTimeout(shoot, 100);
+    setTimeout(shoot, 200);
+  };
+
+  const handleClick = ()=>{
     confetti({});confetti({});confetti({});
+  }
+
+  useEffect(()=>{
+    //confetti at the time of component mounting
+    loadConfetti();
 
     axios('https://sb-ng-api.onrender.com/getGames')
     .then((res)=>{
@@ -53,11 +155,13 @@ function App() {
 
   const handleTheme = ()=>{
     setIsTheme(!isTheme);
-    confetti({});confetti({});confetti({});
+    triggerFireWorks();
   }
 
   const handleChange = (e)=>{
-    confetti({});
+    //confetti onchange
+    loadConfetti();
+    
     axios(`https://sb-ng-api.onrender.com/onCategoryGames?category=${e.target.value}`)
     .then((res)=>{
       setPhotos(res.data);
@@ -66,10 +170,6 @@ function App() {
     .catch((err)=>{
       console.error(err);
     })
-  }
-
-  const handleClick = ()=>{
-    confetti({});confetti({});confetti({});confetti({});
   }
 
   return (
@@ -147,7 +247,7 @@ function App() {
                     <CardFooter>
                       <Grid container spacing={1}>
                         <Grid item xs={1}> 
-                          <Button color='danger' onClick={handleClick} isIconOnly radius="full" className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg">
+                          <Button color='danger' onClick={triggerEmojis} isIconOnly radius="full" className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg">
                             <Favorite/>
                           </Button>
                         </Grid>
@@ -161,7 +261,7 @@ function App() {
                           
                         </Grid>
                         <Grid item xs={1}> 
-                          <Button color={isTheme?'warning':'primary'} isIconOnly radius="full" className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg">
+                          <Button onClick={handleClick} color={isTheme?'warning':'primary'} isIconOnly radius="full" className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg">
                             <CameraAlt/>
                           </Button>
                         </Grid>

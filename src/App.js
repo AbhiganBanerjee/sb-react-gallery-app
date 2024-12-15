@@ -256,6 +256,7 @@ function App() {
                         </Grid>
                         <Grid item xs={7}> 
                           <p style={{fontFamily:"monospace",fontWeight:"bold"}}>{photo.desc}</p>
+                          <p style={{fontFamily:"monospace",fontWeight:"bold", fontSize:"12px"}}>{photo.date}</p>
                         </Grid>
                         <Grid item xs={1}> 
                           
